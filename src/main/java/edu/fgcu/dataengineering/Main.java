@@ -5,11 +5,16 @@ import com.google.gson.stream.JsonReader;
 import com.opencsv.exceptions.CsvValidationException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException, CsvValidationException {
+    public static void main(String[] args)
+        throws IOException, CsvValidationException, SQLException {
 	      // Literally just calls our parser right now (....and is called for tests)
+        BookStoreDB.connectDB();
+        bookStore db = new BookStoreDB();
+
         CsvParser csvP = new CsvParser("src/Data/bookstore_report2.csv");
         csvP.printCsv();
 
@@ -18,14 +23,21 @@ public class Main {
         1. Create instance of GSON
         2. Create a JsonReader object using FileReader
         3. Array of class instances of AuthorParser, assign data from our JsonReader
-        4. foreach loop to check data
+        4. foreach loop to check data   `
          */
+
         Gson gson = new Gson();
         JsonReader jread = new JsonReader(new FileReader("src/Data/authors.json"));
         AuthorParser[] authors = gson.fromJson(jread, AuthorParser[].class);
 
         for (var element : authors) {
             System.out.println(element.getName());
+
+            String name = element.getName();
+            String email = element.getEmail();
+            String url = element.getUrl();
+
+            db.insertToAuthor(name, email, url);
         }
     }
 }
